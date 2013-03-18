@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<taglib xmlns="http://java.sun.com/xml/ns/j2ee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-jsptaglibrary_2_0.xsd"
+	version="2.0">
+
+	<description>Asset Pipeline TLD</description>
+	<tlib-version>1.0</tlib-version>
+	<short-name>pipeline</short-name>
+	<uri>http://ntier.co/pipeline</uri>
+
+	<tag>
+		<description> Defines a set of script tags </description>
+		<name>scripts</name>
+		<tag-class>co.ntier.web.pipeline.tag.ScriptsTag</tag-class>
+		<body-content>JSP</body-content>
+		<attribute>
+			<description>Defines the path to reference the combined resource</description>
+			<name>ref</name>
+			<required>true</required>
+			<rtexprvalue>true</rtexprvalue>
+		</attribute>
+	</tag>
+	
+	<tag>
+		<name>script</name>
+		<tag-class>co.ntier.web.pipeline.tag.ScriptTag</tag-class>
+		<body-content>JSP</body-content>
+		<attribute>
+			<description>Defines the path to script</description>
+			<name>src</name>
+			<required>true</required>
+			<rtexprvalue>true</rtexprvalue>
+		</attribute>
+	</tag>
+	
+</taglib>
