@@ -8,6 +8,9 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
+/**
+ * A simple tag class that adds itself to the containing parent.  
+ */
 @ToString(of={"src"})
 public class ScriptTag extends TagSupport{
 

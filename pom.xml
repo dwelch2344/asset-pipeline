@@ -10,11 +10,6 @@
 	</properties>
 
 	<dependencies>
-		<dependency>
-			<groupId>com.google.javascript</groupId>
-			<artifactId>closure-compiler</artifactId>
-			<version>v20130227</version>
-		</dependency>
 		<!-- Spring Framework -->
 		<dependency>
 			<groupId>org.springframework</groupId>
