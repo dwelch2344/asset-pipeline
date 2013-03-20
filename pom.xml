@@ -5,12 +5,26 @@
 	<artifactId>asset-pipeline</artifactId>
 	<version>1.0.0-SNAPSHOT</version>
 
+	<properties>
+		<spring.core.version>3.1.1.RELEASE</spring.core.version>
+	</properties>
 
 	<dependencies>
 		<dependency>
 			<groupId>com.google.javascript</groupId>
 			<artifactId>closure-compiler</artifactId>
 			<version>v20130227</version>
+		</dependency>
+		<!-- Spring Framework -->
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-core</artifactId>
+			<version>${spring.core.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-web</artifactId>
+			<version>${spring.core.version}</version>
 		</dependency>
 		<!-- Servlet API -->
 		<dependency>

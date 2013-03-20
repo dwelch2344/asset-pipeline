@@ -1,5 +1,6 @@
 package co.ntier.web.pipeline.tag;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
@@ -13,7 +14,12 @@ import lombok.Setter;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
+import org.springframework.web.context.WebApplicationContext;
+import org.springframework.web.context.support.WebApplicationContextUtils;
+
+import co.ntier.web.pipeline.core.ResourceCompiler;
 
 import com.google.common.collect.Lists;
 
@@ -42,13 +48,13 @@ public class ScriptsTag extends TagSupport{
 	@Override
 	public int doEndTag() throws JspException {
 		// WebApplicationContext applicationContext = WebApplicationContextUtils.getRequiredWebApplicationContext(pageContext.getServletContext());
-		if( production ){
+		if( !production ){
 			// TODO if we haven't printed it yet on this request...
+			createMinified();
 			writeResourceTag(ref);
 		} else {
 			write("\n<!-- Start Pipelined Resources for '" + ref + "' -->\n");
 			for(String tag : scripts){
-				foobar( tag ); 
 				writeResourceTag( tag );
 			}
 			write("<!-- End Pipelined Resources for '" + ref + "' -->");
@@ -57,16 +63,20 @@ public class ScriptsTag extends TagSupport{
 	}
 	
 	@SneakyThrows
-	private void foobar(String resource) {
+	private void createMinified() {
 		ServletContext ctx = pageContext.getServletContext();
-		InputStream stream = ctx.getResourceAsStream(resource);
-		if( stream == null ){
-			log.warn("Failed loading resource: " + resource);
-		}else{
-			String data = IOUtils.toString(stream);
-			System.out.println(data);
+		List<String> files = Lists.newArrayList();
+		for(String tag : scripts){
+			String path = ctx.getRealPath(tag);
+			files.add(path);
 		}
 		
+		String source = compiler().compile(files);
+		
+		String result = ctx.getRealPath(ref);
+		File file = new File(result);
+		FileUtils.writeStringToFile(file, source);
+		log.info("Created compiled resource at", file.getAbsolutePath(), file.getAbsoluteFile());
 	}
 
 	private void writeResourceTag(String url){
@@ -80,6 +90,16 @@ public class ScriptsTag extends TagSupport{
 		} catch (IOException e) {
 			throw new JspException("Failed writing from tag", e);
 		}
+	}
+	
+	private ResourceCompiler compiler(){
+		return getContext().getBean( ResourceCompiler.class );
+	}
+	
+	private WebApplicationContext getContext(){
+		ServletContext sc = pageContext.getServletContext();
+		WebApplicationContext ac = WebApplicationContextUtils.getRequiredWebApplicationContext(sc );
+		return ac;
 	}
 
 }
