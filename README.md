@@ -8,8 +8,8 @@ QuickStart
 -------
 
 1. Add my GitHub Maven Repository & the *asset-pipeline* dependency to your *pom.xml*. This example uses the Google Closure adapter (which is the only implementation available now)
-```<repositories>
-   <repositories>
+```xml
+    <repositories>
 		<repository>
 			<id>ntier-repo</id>
 			<url>https://github.com/dwelch2344/maven-repo/raw/master/releases</url>
@@ -22,28 +22,27 @@ QuickStart
 		</repository>
 	</repositories>
 
-  <dependencies>
-  	<dependency>
+	<dependencies>
+		<dependency>
 			<groupId>co.ntier.web</groupId>
 			<artifactId>asset-pipeline-closure</artifactId>
 			<version>1.0.0-SNAPSHOT</version>
 		</dependency>
-    <!-- Your dependencies HERE! -->
-  </dependencies>
+		<!-- Your dependencies HERE! -->
+	</dependencies>
 ```
 2. Configure your *ServletContext* as appropriate. The following example uses Spring's JavaConfig to hook things up correctly
 ```java
 public class SomeConfig {
-  
-  	@Inject 
-    private ServletContext ctx;
-  	
-  	@PostConstruct
-  	public void onSetup(){
-  		// comment the next line out to prevent minification
-  		ctx.setAttribute(PipelineConstants.IS_PRODUCTION_KEY, true);
-  		ctx.setAttribute(PipelineConstants.RESOURCE_COMPILER_KEY, new ClosureResourceCompiler());
-  	}
+	@Inject 
+	private ServletContext ctx;
+	
+	@PostConstruct
+	public void onSetup(){
+		// comment the next line out to prevent minification
+		ctx.setAttribute(PipelineConstants.IS_PRODUCTION_KEY, true);
+		ctx.setAttribute(PipelineConstants.RESOURCE_COMPILER_KEY, new ClosureResourceCompiler());
+	}
 }
 ```
 3. Declare your resources in your JSP
