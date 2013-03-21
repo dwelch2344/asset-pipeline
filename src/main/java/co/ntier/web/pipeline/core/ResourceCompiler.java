@@ -7,6 +7,11 @@ import java.util.List;
  */
 public interface ResourceCompiler {
 
+	/**
+	 * Compiles a list of resources
+	 * @param files A list of absolute path references
+	 * @return the compiled source
+	 */
 	String compile(List<String> files);
 
 }

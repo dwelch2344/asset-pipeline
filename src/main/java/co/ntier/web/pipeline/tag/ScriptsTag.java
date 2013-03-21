@@ -15,9 +15,8 @@ import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 
 import org.apache.commons.io.FileUtils;
-import org.springframework.web.context.WebApplicationContext;
-import org.springframework.web.context.support.WebApplicationContextUtils;
 
+import co.ntier.web.pipeline.core.PipelineConstants;
 import co.ntier.web.pipeline.core.ResourceCompiler;
 
 @Slf4j
@@ -32,8 +31,6 @@ public class ScriptsTag extends TagSupport {
 	@Getter @Setter
 	private String ref;
 	
-	private boolean production;
-
 	public void addScript(ScriptTag tag) {
 		scripts.add(tag.getSrc());
 	}
@@ -46,8 +43,9 @@ public class ScriptsTag extends TagSupport {
 
 	@Override
 	public int doEndTag() throws JspException {
-		if (!production) {
-			createMinified();
+		Object production = pageContext.getServletContext().getAttribute( PipelineConstants.IS_PRODUCTION_KEY );
+		if ( Boolean.TRUE.equals(production) ){
+			verifyCompiled();
 			writeResourceTag(ref);
 		} else {
 			write("\n<!-- Start Pipelined Resources for '" + ref + "' -->\n");
@@ -60,18 +58,18 @@ public class ScriptsTag extends TagSupport {
 	}
 
 	@SneakyThrows
-	private void createMinified() {
+	private void verifyCompiled() {
 		ServletContext ctx = pageContext.getServletContext();
 
 		String endFile = ctx.getRealPath(ref);
 		File file = new File(endFile);
 		if (file.exists()) {
+			// TODO change this to store the md5 of each file and only update if changed
 			long diff = System.currentTimeMillis() - file.lastModified();
 			if( diff > 60 * 1000 * CACHE_MINUTES){
 				log.warn("Haven't recompiled in {} minutes. Will recompile {}", CACHE_MINUTES, file.getAbsoluteFile());
 			}else{
-				log.warn("Minified resource already exists: {} ({})",
-						file.getAbsoluteFile(), diff);
+				log.warn("Minified resource already exists: {} ({})", file.getAbsoluteFile(), diff);
 				return;
 			}
 		}
@@ -84,13 +82,16 @@ public class ScriptsTag extends TagSupport {
 			files.add(path);
 		}
 
-		// compile the resources
-		String source = compiler().compile(files);
-
-		// create the new file
-		FileUtils.writeStringToFile(file, source);
-		log.info("Created compiled resource at", file.getAbsolutePath(),
-				file.getAbsoluteFile());
+		try{
+			// compile the resources
+			String source = compiler().compile(files);
+	
+			// create the new file
+			FileUtils.writeStringToFile(file, source);
+			log.info("Created compiled resource at {}", file.getAbsolutePath() );
+		}catch(IllegalStateException e){
+			log.warn("Couldn't compile resources: {}", e.getMessage());
+		}
 	}
 
 	private void writeResourceTag(String url) {
@@ -107,15 +108,13 @@ public class ScriptsTag extends TagSupport {
 	}
 
 	private ResourceCompiler compiler() {
-		return getContext().getBean(ResourceCompiler.class);
+		Object compiler = pageContext.getServletContext().getAttribute( PipelineConstants.RESOURCE_COMPILER_KEY);
+		if( compiler == null || !(compiler instanceof ResourceCompiler) ){
+			throw new IllegalStateException("ServletContext does not have a ResourceCompiler attribute. Found: " + compiler);
+		}
+		return (ResourceCompiler) compiler;
 	}
 
-	private WebApplicationContext getContext() {
-		ServletContext sc = pageContext.getServletContext();
-		WebApplicationContext wac = WebApplicationContextUtils
-				.getRequiredWebApplicationContext(sc);
-		return wac;
-	}
 
 	
 }
