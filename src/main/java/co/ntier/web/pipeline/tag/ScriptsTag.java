@@ -95,7 +95,8 @@ public class ScriptsTag extends TagSupport {
 	}
 
 	private void writeResourceTag(String url) {
-		write("<script src='" + url + "' type='text/javascript'></script>\n");
+		String path = pageContext.getServletContext().getContextPath();
+		write("<script src='" + path + url + "' type='text/javascript'></script>\n");
 	}
 
 	@SneakyThrows
