@@ -65,4 +65,11 @@ public class SomeConfig {
 
 4. Enjoy!
 
+
+
 When developing, just comment out the ``` IS_PRODUCTION_KEY ``` line from the configuration file and you'll get the raw resources. 
+
+
+ [BakeHouse]: https://github.com/TheMangoFactory/bakehouse
+ [demo project]: https://github.com/dwelch2344/asset-pipeline-demo
+
