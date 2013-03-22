@@ -33,9 +33,12 @@ QuickStart
 ```
 2. Configure your *ServletContext* as appropriate. The following example uses Spring's JavaConfig to hook things up correctly
 ```java
-public class SomeConfig {
-	@Inject 
-	private ServletContext ctx;
+@Configuration
+@EnableWebMvc
+@EnableAspectJAutoProxy(proxyTargetClass=true)
+public class WebConfig extends WebMvcConfigurerAdapter {
+	
+	@Inject ServletContext ctx;
 	
 	@PostConstruct
 	public void onSetup(){
@@ -43,8 +46,16 @@ public class SomeConfig {
 		ctx.setAttribute(PipelineConstants.IS_PRODUCTION_KEY, true);
 		ctx.setAttribute(PipelineConstants.RESOURCE_COMPILER_KEY, new ClosureResourceCompiler());
 	}
+	    
+	@Override
+	public void addResourceHandlers(ResourceHandlerRegistry registry) {
+	    // add the generated sources folder for serving static content
+	    registry.addResourceHandler("/gen/**").addResourceLocations("/gen/");
+	}
 }
 ```
+**NOTE:** The ```/gen/``` mapping should correspond to the prefix used in the next step... 
+
 3. Declare your resources in your JSP
 ```jsp
 <%@ taglib prefix="pipeline" uri="http://ntier.co/pipeline" %>
@@ -54,6 +65,7 @@ public class SomeConfig {
   <meta charset="utf-8">
   
   <!-- Generated code will be here -->
+  <%-- Note that the "/gen" prefix corresponds to the ResourceHandler mapping in step 2 --%>
   <pipeline:scripts ref="/gen/app.js">
 		<pipeline:script src="/resources/app1.js"/>
 		<pipeline:script src="/resources/app2.js"/>
